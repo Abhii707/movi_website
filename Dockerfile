@@ -1,12 +1,14 @@
-FROM nginx
+# Use official Nginx image as base
+FROM nginx:latest
 
+# Set the working directory
+WORKDIR /usr/share/nginx/html
 
-WORKDIR /MYFIRSTPROJECT
+# Copy all project files to the container
+COPY . /usr/share/nginx/html
 
-
-COPY . /MYFIRSTPROJECT/
-#RUN nginx install
-
-CMD [ "nginx" , "index.html"]
-
+# Expose port 80 to allow HTTP traffic
 EXPOSE 80
+
+# Start Nginx server
+CMD ["nginx", "-g", "daemon off;"]
