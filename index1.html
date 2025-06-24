@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movies Hub Login</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('./wp1945909.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .auth-container {
+      background-color: rgba(0, 0, 0, 0.85);
+      padding: 40px;
+      border-radius: 14px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+      width: 380px;
+      backdrop-filter: blur(6px);
+    }
+
+    .auth-container h2 {
+      text-align: center;
+      margin-bottom: 8px;
+      color: #ffffff;
+      font-size: 28px;
+    }
+
+    .auth-container h3 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #00fff7;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    .auth-container form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .auth-container label {
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+
+    .auth-container input {
+      padding: 12px;
+      margin-bottom: 18px;
+      border-radius: 6px;
+      border: none;
+      outline: none;
+      background-color: #2c2c2c;
+      color: #fff;
+    }
+
+    .auth-container input::placeholder {
+      color: #999;
+    }
+
+    .auth-container button {
+      padding: 12px;
+      background-color: #e50914;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .auth-container button:hover {
+      background-color: #b00610;
+    }
+
+    .toggle-link {
+      text-align: center;
+      margin-top: 12px;
+      color: #00e5ff;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .notification {
+      text-align: center;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 6px;
+      background-color: rgba(255, 0, 0, 0.8);
+      color: white;
+      display: none;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <h2 id="formTitle">Login</h2>
+    <h3>🎬 Movies Hub</h3>
+    <form id="authForm">
+      <label for="name" id="nameLabel" style="display: none;">Name</label>
+      <input type="text" id="name" name="name" placeholder="Enter your name" style="display: none;" />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required />
+
+      <button type="submit">Login</button>
+    </form>
+    <p class="toggle-link" id="toggleLink">Don't have an account? Sign Up</p>
+    <div class="notification" id="notification"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("authForm");
+    const toggleLink = document.getElementById("toggleLink");
+    const formTitle = document.getElementById("formTitle");
+    const nameInput = document.getElementById("name");
+    const nameLabel = document.getElementById("nameLabel");
+    const notification = document.getElementById("notification");
+    let isLogin = true;
+
+    toggleLink.addEventListener("click", () => {
+      isLogin = !isLogin;
+      formTitle.textContent = isLogin ? "Login" : "Sign Up";
+      toggleLink.textContent = isLogin
+        ? "Don't have an account? Sign Up"
+        : "Already have an account? Login";
+      nameInput.style.display = isLogin ? "none" : "block";
+      nameLabel.style.display = isLogin ? "none" : "block";
+      form.querySelector("button").textContent = isLogin ? "Login" : "Sign Up";
+      notification.style.display = "none";
+    });
+
+    function showNotification(message, isError = true) {
+      notification.textContent = message;
+      notification.style.backgroundColor = isError ? 'rgba(255,0,0,0.8)' : 'rgba(0,128,0,0.7)';
+      notification.style.display = 'block';
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const url = isLogin ? "/login" : "/register";
+      const payload = {
+        email: form.email.value,
+        password: form.password.value,
+      };
+
+      if (!isLogin) {
+        payload.name = form.name.value;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000${url}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await res.json();
+        if (res.ok) {
+          showNotification(result.message || (isLogin ? "Login successful" : "Signup successful"), false);
+          localStorage.setItem("auth", JSON.stringify({ email: payload.email }));
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1000);
+        } else {
+          showNotification(result.message || "Failed to authenticate");
+        }
+      } catch (err) {
+        showNotification("Error connecting to server");
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
