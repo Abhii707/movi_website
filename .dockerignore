@@ -1,0 +1,11 @@
+# Ignore dependencies (will be installed fresh inside container)
+node_modules
+
+# Ignore env vars (inject via secrets or docker-compose env)
+.env
+
+# Ignore debug logs
+npm-debug.log
+
+# Ignore git folder if present
+.git
